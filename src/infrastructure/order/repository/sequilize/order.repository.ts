@@ -1,4 +1,5 @@
 import Order from "../../../../domain/checkout/entity/order";
+import OrderItem from "../../../../domain/checkout/entity/order_item";
 import OrderRepositoryInterface from "../../../../domain/checkout/repository/order-repository.interface";
 import OrderItemModel from "./order-item.model";
 import OrderModel from "./order.model";
@@ -53,10 +54,50 @@ export default class OrderRepository implements OrderRepositoryInterface {
     }
   }
 
-  find(id: string): Promise<Order> {
-    throw new Error("Method not implemented.");
+  async find(id: string): Promise<Order> {
+    let orderModel;
+
+    try {
+      orderModel = await OrderModel.findOne({
+        where: {
+          id,
+          rejectOnEmpty: true,
+        },
+      });
+    } catch (error) {
+      throw new Error("Order not found");
+    }
+
+    const items: OrderItem[] = orderModel.items.map((order) => {
+      return new OrderItem(
+        order.id,
+        order.name,
+        order.price,
+        order.product_id,
+        order.quantity
+      );
+    });
+
+    return new Order(id, orderModel.customer_id, items);
   }
-  findAll(): Promise<Order[]> {
-    throw new Error("Method not implemented.");
+
+  async findAll(): Promise<Order[]> {
+    const orderModels = await OrderModel.findAll();
+
+    const orders = orderModels.map((orderModel) => {
+      const items: OrderItem[] = orderModel.items.map((order) => {
+        return new OrderItem(
+          order.id,
+          order.name,
+          order.price,
+          order.product_id,
+          order.quantity
+        );
+      });
+
+      return new Order(orderModel.id, orderModel.customer_id, items);
+    });
+
+    return orders;
   }
 }
