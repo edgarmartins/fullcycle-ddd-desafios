@@ -220,17 +220,17 @@ describe("Order repository test", () => {
     await orderRepository.create(order1);
     await orderRepository.create(order2);
 
-    const foundOrders = await OrderModel.findAll({ include: ["items"] });
+    const foundOrders = await orderRepository.findAll();
     console.log(foundOrders);
     const orders = [order1, order2];
 
-    expect(orders[0].customerId).toEqual(foundOrders[0].customer_id);
+    expect(orders[0].customerId).toEqual(foundOrders[0].customerId);
     expect(orders[0].id).toEqual(foundOrders[0].id);
     expect(orders[0].items[0].id).toEqual(foundOrders[0].items[0].id);
     expect(orders[0].items[0].name).toEqual(foundOrders[0].items[0].name);
     expect(orders[0].items[0].price).toEqual(foundOrders[0].items[0].price);
     expect(orders[0].items[0].productId).toEqual(
-      foundOrders[0].items[0].product_id
+      foundOrders[0].items[0].productId
     );
     expect(orders[0].items[0].quantity).toEqual(
       foundOrders[0].items[0].quantity
